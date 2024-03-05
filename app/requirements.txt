@@ -1,0 +1,6 @@
+requests
+pandas
+loguru
+boto3
+beautifulsoup4
+openpyxl

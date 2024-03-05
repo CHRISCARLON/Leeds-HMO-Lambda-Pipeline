@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Lambda application that runs a data processing task manually.
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python3.11
+      CodeUri: app/
+      Description: A Lambda function to manually process data and upload to S3.
+      MemorySize: 128
+      Timeout: 60
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+                - secretsmanager:GetSecretValue
+              Resource: '*'
