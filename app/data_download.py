@@ -60,3 +60,17 @@ def upload_to_s3(df, bucket_name, object_name, aws_access_key_id, aws_secret_acc
     # Upload the Excel file to the specified S3 bucket
     s3_resource.Bucket(bucket_name).put_object(Key=object_name, Body=excel_buffer.getvalue())
     logger.success(f"Excel file uploaded to S3 bucket '{bucket_name}' successfully.")
+
+
+def retrieve_from_s3(bucket_name, object_name, aws_access_key_id, aws_secret_access_key):
+    # Initialize a boto3 client
+    s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+    
+    # Retrieve the object from S3
+    s3_data = s3_client.get_object(Bucket=bucket_name, Key=object_name)
+    contents = s3_data['Body'].read()
+    
+    # Read the Excel file into a pandas DataFrame
+    df = pd.read_excel(BytesIO(contents))
+    
+    return df

@@ -4,14 +4,16 @@ Description: An AWS Lambda application that runs a data processing task manually
 
 Resources:
   MyLambdaFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       Handler: main.lambda_handler
       Runtime: python3.11
       CodeUri: app/
-      Description: A Lambda function to manually process data and upload to S3.
-      MemorySize: 128
-      Timeout: 60
+      Description: A Lambda function to dump raw data to S3, transform, and push to MotherDuck.
+      MemorySize: 1024 # 1GB of RAM
+      Timeout: 600  # 5 minutes timeout
+      EphemeralStorage:
+        Size: 512 # Size in MB
       Policies:
         - AWSLambdaBasicExecutionRole
         - Version: '2012-10-17'
@@ -19,6 +21,5 @@ Resources:
             - Effect: Allow
               Action:
                 - s3:PutObject
-                - s3:GetObject
                 - secretsmanager:GetSecretValue
               Resource: '*'
