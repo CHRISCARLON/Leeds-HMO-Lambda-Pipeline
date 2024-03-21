@@ -63,7 +63,7 @@ def upload_to_s3(df, bucket_name, object_name, aws_access_key_id, aws_secret_acc
 
 
 def retrieve_from_s3(bucket_name, object_name, aws_access_key_id, aws_secret_access_key):
-    # Initialize a boto3 client
+    # Initialise a boto3 client
     s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
     
     # Retrieve the object from S3

@@ -24,7 +24,7 @@ def remove_dots_from_date(date_str):
     return date_str.replace('.', '')
 
 def new_date_added_column(df, date):
-    df["date_published"] = date
+    df["date_added"] = date
     return df
 
 ####
@@ -84,10 +84,26 @@ def get_coords(df):
 """Rename Original Columns"""
 def rename_cols(df):
     # Tidy the original column names with new ones 
-    return df.rename(columns={
-        'Street name': 'street_name',
-        'Address': 'address',
-        'Renewal Date': 'renewal_date',
-        'Licence Holder': 'licence_holder',
-        'Maximum Permitted Number of Tenants': 'max_tenants'
-    })
+    # The idea here is that the index position of the column names wont change that much
+    # There always seems to be typos in the column strings so you shouldn't use those
+    new_col_names = ["street_name", "address", "renewal_date", "licence_holder", "max_tenants" ]
+    
+    if len(df.columns) != len(new_col_names):
+        raise ValueError("The number of new column names must match the number of columns in the DataFrame.")
+
+    mapping = {old: new for old, new in zip(df.columns, new_col_names)}
+    return df.rename(columns=mapping)
+
+####
+"""Create hmo_id column. This will be used as the Primary Key."""
+def process_hmo_id(dfcolumn):
+    # Processes an address by removing spaces and converting to lowercase.
+    return ''.join(dfcolumn.split()).lower()
+
+def create_hmo_id_column(df, address_column='address', new_column='hmo_id'):
+    # Adds a new column to the DataFrame with processed addresses to serve as HMO IDs. 
+    # The processing involves removing spaces and converting to lowercase.
+    
+    # Apply the process_address function to the address column and create a new column
+    df[new_column] = df[address_column].apply(process_hmo_id)
+    return df

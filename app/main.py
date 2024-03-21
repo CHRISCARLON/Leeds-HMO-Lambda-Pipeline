@@ -4,7 +4,7 @@ import boto3
 from loguru import logger
 import pandas as pd
 from data_download import data_url, load_excel_into_memory, upload_to_s3, retrieve_from_s3
-from data_transform import date_from_url, remove_dots_from_date, new_date_added_column, add_postcode_column ,extract_unique_postcodes, get_coords, rename_cols
+from data_transform import date_from_url, remove_dots_from_date, new_date_added_column, add_postcode_column ,extract_unique_postcodes, get_coords, rename_cols, create_hmo_id_column
 from duckdb_push import connect_to_motherduck, load_into_duckdb
 
 def get_secrets(secret_name, region_name="eu-west-2"):
@@ -43,25 +43,20 @@ def main():
     if df is not None:
         upload_to_s3(df, bucket_name, object_name, aws_access_key_id, aws_secret_access_key)
     else:
-        logger.error("DataFrame is empty. Nothing to upload.")
+        logger.error("DataFrame is empty. There is nothing to upload.")
     
     # STEP 2
     # Pull the excel back into df for transformation
     df = retrieve_from_s3(bucket_name, object_name, aws_access_key_id, aws_secret_access_key)
-    
     df = rename_cols(df)
-    
+    df = create_hmo_id_column(df)
     date_from_excel = date_from_url(download_url)
     date_from_excel_nodots = remove_dots_from_date(date_from_excel)
     df = new_date_added_column(df, date_from_excel_nodots)
-
     df = add_postcode_column(df)
-    
     post_code_list = extract_unique_postcodes(df)
     coords = get_coords(post_code_list)
-    
     df = pd.merge(df, coords, on='postcode', how='left')
-    print("done")
     
     # STEP 3
     # Load into MotherDuck
